@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { Observable, empty, of } from 'rxjs';
 import { filter, mergeMap } from 'rxjs/operators';
-import * as Joi from '@hapi/joi';
+import Joi from 'joi';
 import { isString, tryParse } from './helpers';
 import { Logger, defaultLogger } from '../logging';
 
@@ -22,7 +22,7 @@ export const actionStreamFromSocket = <
 ) => {
   return data.pipe(
     filter(isString),
-    mergeMap(nonParsed => {
+    mergeMap((nonParsed) => {
       const value = tryParse<T>(nonParsed, logger);
       if (value === null) {
         return empty();
@@ -39,8 +39,8 @@ export const actionStreamFromSocket = <
         return empty();
       }
 
-      const result = Joi.validate(value, schema);
-      if (result.error as Error | null) {
+      const result = schema.validate(value);
+      if (result.error) {
         logger.error('💥  Invalid message of type', value.type, result.error);
         return empty();
       }
