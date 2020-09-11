@@ -1,0 +1,14 @@
+.DS_Store
+.jest-cache
+.pnp
+/.env.local
+coverage
+coverage-*
+lib
+node_modules
+package
+yarn-error.log
+.log
+
+dist
+out

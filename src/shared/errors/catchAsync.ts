@@ -1,0 +1,35 @@
+import { ensureError } from './ensureError';
+import { Optional } from './types';
+import { AggregateError } from './aggregateError';
+
+type Fn<O> = (() => Promise<O>) | (() => O);
+
+function safeCall<O>(fn: Fn<O>) {
+  try {
+    return Promise.resolve(fn());
+  } catch (exc) {
+    return Promise.reject(exc);
+  }
+}
+
+export const catchAsync = async <O>(
+  fn: Fn<O>,
+  opts: {
+    errorMessage?: string;
+  } = {}
+): Promise<Optional<O>> => {
+  try {
+    const result = await safeCall(fn);
+    return {
+      error: null,
+      result,
+    };
+  } catch (err) {
+    return {
+      error: opts.errorMessage
+        ? new AggregateError(opts.errorMessage, ensureError(err))
+        : ensureError(err),
+      result: null,
+    };
+  }
+};
